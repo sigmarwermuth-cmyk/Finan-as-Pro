@@ -19,8 +19,8 @@ export const MASTER_KEYS: string[] = [
 
 // Official PIX Payment Configuration for Full License
 export const PIX_CONFIG = {
-  pixKey: 'sigmarwermuth@gmail.com',
-  keyType: 'E-mail',
+  pixKey: 'b801a0d5-b949-4c8e-ad5d-b544afab8b',
+  keyType: 'Chave Aleatória',
   receiverName: 'SIGMAR WERMUTH',
   city: 'BRASIL',
   price: 49.90,

@@ -441,9 +441,9 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
                       {/* Pix Key Details & Copy Action */}
                       <div className="flex-1 w-full space-y-2.5 text-xs">
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Chave Pix (E-mail do Desenvolvedor)</span>
+                          <span className="text-[10px] text-slate-400 block">Chave Pix ({PIX_CONFIG.keyType})</span>
                           <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 mt-0.5">
-                            <span className="font-mono font-bold text-emerald-400 text-xs truncate">
+                            <span className="font-mono font-bold text-emerald-400 text-xs truncate select-all">
                               {PIX_CONFIG.pixKey}
                             </span>
                             <button
