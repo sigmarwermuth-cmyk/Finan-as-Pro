@@ -101,10 +101,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              Olá, {settings.userName}! Seu resumo mensal está atualizado.
+              Olá, {settings.userName}! {transactions.length === 0 ? 'Bem-vindo ao Finanças Pro.' : 'Seu resumo mensal está atualizado.'}
             </h2>
             <p className="text-xs text-slate-300 mt-0.5">
-              {monthSummary.savingsRate >= 20 ? (
+              {transactions.length === 0 ? (
+                <span className="text-slate-300">
+                  Cadastre suas receitas e despesas para acompanhar seu patrimônio, fluxo de caixa e relatórios em tempo real.
+                </span>
+              ) : monthSummary.savingsRate >= 20 ? (
                 <span className="text-emerald-400 font-medium flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 inline" /> Sua taxa de poupança está em {monthSummary.savingsRate.toFixed(1)}% (acima da meta recomendada de 20%).
                 </span>

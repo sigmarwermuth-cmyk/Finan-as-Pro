@@ -38,6 +38,7 @@ interface SettingsViewProps {
   onDeleteCategory: (id: string) => void;
   onImportBackup: (importedData: any) => void;
   onResetData: () => void;
+  onClearTransactions?: () => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -51,6 +52,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onDeleteCategory,
   onImportBackup,
   onResetData,
+  onClearTransactions,
 }) => {
   const [userNameInput, setUserNameInput] = useState(settings.userName);
   const [savedFeedback, setSavedFeedback] = useState(false);
@@ -377,16 +379,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <input type="file" accept=".json" onChange={handleImportFile} className="hidden" />
           </label>
 
+          {onClearTransactions && (
+            <button
+              onClick={() => {
+                if (confirm('Deseja realmente apagar todos os lançamentos do extrato? Suas contas e categorias serão mantidas.')) {
+                  onClearTransactions();
+                }
+              }}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-amber-300 bg-amber-950/20 hover:bg-amber-950/40 border border-amber-500/20 transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4 text-amber-400" />
+              <span>Limpar Todos os Lançamentos</span>
+            </button>
+          )}
+
           <button
             onClick={() => {
-              if (confirm('Deseja resetar os dados para o conjunto inicial de demonstração?')) {
+              if (confirm('Deseja resetar todos os dados do aplicativo para o estado inicial limpo?')) {
                 onResetData();
               }
             }}
             className="px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-400 bg-rose-950/20 hover:bg-rose-950/40 border border-rose-500/20 transition-colors flex items-center gap-2 ml-auto"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Restaurar Dados Demo</span>
+            <span>Limpar App do Zero</span>
           </button>
         </div>
       </div>

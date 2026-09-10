@@ -107,16 +107,18 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
   };
 
   const handleSendProofWhatsApp = () => {
+    const priceFormatted = PIX_CONFIG.price.toFixed(2).replace('.', ',');
     const text = encodeURIComponent(
-      `Olá Sigmar! Acabei de realizar o pagamento Pix de R$ 49,90 para a licença Full Vitalícia do Finanças Pro.\n\n👤 Nome: ${ownerName || 'Nome do Comprador'}\n💻 ID do Dispositivo: ${license.deviceId}\n\nSegue em anexo o comprovante do Pix. Aguardo o envio da minha chave de ativação!`
+      `Olá Sigmar! Acabei de realizar o pagamento Pix de R$ ${priceFormatted} para a licença Full Vitalícia do Finanças Pro.\n\n👤 Nome: ${ownerName || 'Nome do Comprador'}\n💻 ID do Dispositivo: ${license.deviceId}\n\nSegue em anexo o comprovante do Pix. Aguardo o envio da minha chave de ativação!`
     );
     window.open(`https://wa.me/${PIX_CONFIG.supportWhatsApp}?text=${text}`, '_blank');
   };
 
   const handleSendProofEmail = () => {
+    const priceFormatted = PIX_CONFIG.price.toFixed(2).replace('.', ',');
     const subject = encodeURIComponent(`Comprovante Pix Finanças Pro - ID: ${license.deviceId}`);
     const body = encodeURIComponent(
-      `Olá Sigmar,\n\nAcabei de realizar o pagamento Pix de R$ 49,90 para a licença Full Vitalícia do Finanças Pro.\n\nNome: ${ownerName || 'Nome do Comprador'}\nID do Dispositivo: ${license.deviceId}\n\nEm anexo envio o comprovante do Pix. Por favor, envie minha chave de ativação.\n\nObrigado!`
+      `Olá Sigmar,\n\nAcabei de realizar o pagamento Pix de R$ ${priceFormatted} para a licença Full Vitalícia do Finanças Pro.\n\nNome: ${ownerName || 'Nome do Comprador'}\nID do Dispositivo: ${license.deviceId}\n\nEm anexo envio o comprovante do Pix. Por favor, envie minha chave de ativação.\n\nObrigado!`
     );
     window.open(`mailto:${PIX_CONFIG.supportEmail}?subject=${subject}&body=${body}`, '_blank');
   };
@@ -173,7 +175,7 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    PIX R$ 49,90
+                    PIX R$ {PIX_CONFIG.price.toFixed(2).replace('.', ',')}
                   </span>
                 )}
               </div>

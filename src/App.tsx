@@ -34,7 +34,7 @@ import { TransactionModal } from './components/TransactionModal';
 import { AISmartAddModal } from './components/AISmartAddModal';
 import { RegisterAppModal } from './components/RegisterAppModal';
 
-const STORAGE_KEY = 'financas_pro_app_state_v1';
+const STORAGE_KEY = 'financas_pro_app_state_v2';
 
 export default function App() {
   // Load initial state from LocalStorage or Fallback
@@ -68,10 +68,13 @@ export default function App() {
     return saved ? JSON.parse(saved) : initialSettings;
   });
 
-  // App License State
+  // App License State (Preserve key if migrated from v1)
   const [license, setLicense] = useState<AppLicense>(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_license`);
-    return saved ? JSON.parse(saved) : getInitialLicense();
+    const savedV2 = localStorage.getItem(`${STORAGE_KEY}_license`);
+    if (savedV2) return JSON.parse(savedV2);
+    const savedV1 = localStorage.getItem('financas_pro_app_state_v1_license');
+    if (savedV1) return JSON.parse(savedV1);
+    return getInitialLicense();
   });
 
   // UI state
@@ -389,14 +392,19 @@ export default function App() {
     setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
-  // Reset demo data
+  // Reset all data to clean initial state
   const handleResetData = () => {
-    setTransactions(initialTransactions);
+    setTransactions([]);
     setCategories(initialCategories);
     setAccounts(initialAccounts);
     setGoals(initialGoals);
-    setRecurringBills(initialRecurringBills);
+    setRecurringBills([]);
     setSettings(initialSettings);
+  };
+
+  // Clear only transactions
+  const handleClearTransactions = () => {
+    setTransactions([]);
   };
 
   // Import backup
@@ -570,6 +578,7 @@ export default function App() {
                 onDeleteCategory={handleDeleteCategory}
                 onImportBackup={handleImportBackup}
                 onResetData={handleResetData}
+                onClearTransactions={handleClearTransactions}
               />
             )}
           </main>
