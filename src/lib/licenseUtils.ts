@@ -28,6 +28,8 @@ export const PIX_CONFIG = {
   discountPercentage: 0,
   txDescription: 'FINANCIAS PRO FULL VITALICIO',
   supportEmail: 'sigmarwermuth@gmail.com',
+  supportWhatsApp: '5549998043552',
+  supportWhatsAppFormatted: '(49) 99804-3552',
 };
 
 /**

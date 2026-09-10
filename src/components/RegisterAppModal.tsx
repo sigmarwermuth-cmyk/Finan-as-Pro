@@ -25,7 +25,8 @@ import {
   Clock,
   Mail,
   Send,
-  ArrowRight
+  ArrowRight,
+  MessageCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -103,6 +104,13 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
       setSuccessMessage(null);
       onClose();
     }, 1800);
+  };
+
+  const handleSendProofWhatsApp = () => {
+    const text = encodeURIComponent(
+      `Olá Sigmar! Acabei de realizar o pagamento Pix de R$ 49,90 para a licença Full Vitalícia do Finanças Pro.\n\n👤 Nome: ${ownerName || 'Nome do Comprador'}\n💻 ID do Dispositivo: ${license.deviceId}\n\nSegue em anexo o comprovante do Pix. Aguardo o envio da minha chave de ativação!`
+    );
+    window.open(`https://wa.me/${PIX_CONFIG.supportWhatsApp}?text=${text}`, '_blank');
   };
 
   const handleSendProofEmail = () => {
@@ -450,30 +458,40 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
                     </h5>
                     <ol className="list-decimal list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
                       <li>Faça o Pix de <strong className="text-emerald-400">R$ {PIX_CONFIG.price.toFixed(2).replace('.', ',')}</strong> usando o QR Code ou Chave acima.</li>
-                      <li>Envie o comprovante e seu <strong className="text-white font-mono">ID: {license.deviceId}</strong> para <strong className="text-amber-300">{PIX_CONFIG.supportEmail}</strong>.</li>
+                      <li>Envie o comprovante e seu <strong className="text-white font-mono">ID: {license.deviceId}</strong> pelo WhatsApp <strong className="text-emerald-400">{PIX_CONFIG.supportWhatsAppFormatted}</strong>.</li>
                       <li>Você receberá sua <strong className="text-emerald-400">Chave de Ativação Oficial</strong> para desbloquear a versão Full permanente.</li>
                     </ol>
                   </div>
 
-                  {/* Actions: Send Proof & Go to Insert Key */}
+                  {/* Actions: Send Proof via WhatsApp/Email & Go to Insert Key */}
                   <div className="pt-2 space-y-2">
+                    <button
+                      type="button"
+                      id="btn_send_proof_whatsapp"
+                      onClick={handleSendProofWhatsApp}
+                      className="w-full py-3 rounded-xl text-xs font-extrabold text-white bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-600 hover:from-emerald-500 hover:to-green-400 transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4 stroke-[2.5]" />
+                      <span>Enviar Comprovante pelo WhatsApp ({PIX_CONFIG.supportWhatsAppFormatted})</span>
+                    </button>
+
                     <button
                       type="button"
                       id="btn_go_to_key_tab"
                       onClick={() => setActiveTab('key')}
-                      className="w-full py-3 rounded-xl text-xs font-extrabold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300 hover:from-emerald-300 hover:to-teal-300 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                      className="w-full py-2.5 rounded-xl text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2"
                     >
-                      <KeyRound className="w-4 h-4 stroke-[2.5]" />
-                      <span>Já Tenho Minha Chave de Ativação → Inserir Chave</span>
+                      <KeyRound className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+                      <span>Já Recebi Minha Chave de Ativação → Inserir Chave</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleSendProofEmail}
-                      className="w-full py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                      className="w-full py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-2 transition-colors"
                     >
-                      <Mail className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Enviar Comprovante por E-mail (com ID do Dispositivo)</span>
+                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Ou enviar por E-mail ({PIX_CONFIG.supportEmail})</span>
                     </button>
 
                     <p className="text-[10px] text-slate-400 text-center pt-1">
@@ -657,15 +675,21 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-800/80 bg-[#080B12]/80 flex items-center justify-between text-xs text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Suporte: {PIX_CONFIG.supportEmail}</span>
+        <div className="px-6 py-3.5 border-t border-slate-800/80 bg-[#080B12]/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1 text-emerald-400">
+              <MessageCircle className="w-3.5 h-3.5" />
+              WhatsApp: {PIX_CONFIG.supportWhatsAppFormatted}
+            </span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-400">
+              {PIX_CONFIG.supportEmail}
+            </span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+            className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors text-xs"
           >
             Fechar
           </button>
