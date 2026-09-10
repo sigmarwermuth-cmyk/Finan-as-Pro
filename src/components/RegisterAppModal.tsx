@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { AppLicense } from '../types';
 import { 
   validateLicenseKey, 
-  generateSampleKey, 
   maskLicenseKey,
   generatePixCopiaECola,
-  generatePixLicenseKey,
   PIX_CONFIG,
   FREE_LIMITS
 } from '../lib/licenseUtils';
@@ -20,15 +18,14 @@ import {
   Cpu, 
   AlertCircle,
   HelpCircle,
-  Zap,
-  QrCode,
   Smartphone,
-  CreditCard,
-  Loader2,
   CheckCircle2,
   Lock,
   Tag,
-  Clock
+  Clock,
+  Mail,
+  Send,
+  ArrowRight
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -60,7 +57,6 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
   const [activeTab, setActiveTab] = useState<'pix' | 'key' | 'benefits'>(initialTab);
   const [inputKey, setInputKey] = useState('');
   const [ownerName, setOwnerName] = useState(license.registeredTo || '');
-  const [payerEmail, setPayerEmail] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
@@ -68,8 +64,6 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
   const [copiedPixCopiaECola, setCopiedPixCopiaECola] = useState(false);
   const [copiedDeviceId, setCopiedDeviceId] = useState(false);
   const [showKeyHelp, setShowKeyHelp] = useState(false);
-  const [isVerifyingPix, setIsVerifyingPix] = useState(false);
-  const [pixGeneratedKey, setPixGeneratedKey] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -111,39 +105,12 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
     }, 1800);
   };
 
-  const handleSimulatePixConfirmation = () => {
-    setIsVerifyingPix(true);
-    setErrorMessage(null);
-
-    // Realistic verification delay & automated key issuance
-    setTimeout(() => {
-      setIsVerifyingPix(false);
-      const newKey = generatePixLicenseKey();
-      setPixGeneratedKey(newKey);
-      const finalOwner = ownerName.trim() || payerEmail.trim() || 'Comprador Pix';
-      
-      onRegisterSuccess(newKey, finalOwner);
-      setSuccessMessage('Pagamento Pix confirmado com sucesso! Licença Vitalícia liberada.');
-
-      try {
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.55 }
-        });
-      } catch {}
-
-      setTimeout(() => {
-        setSuccessMessage(null);
-        onClose();
-      }, 2500);
-    }, 1400);
-  };
-
-  const handleFillDemoKey = () => {
-    const demoKey = generateSampleKey();
-    setInputKey(demoKey);
-    setErrorMessage(null);
+  const handleSendProofEmail = () => {
+    const subject = encodeURIComponent(`Comprovante Pix Finanças Pro - ID: ${license.deviceId}`);
+    const body = encodeURIComponent(
+      `Olá Sigmar,\n\nAcabei de realizar o pagamento Pix de R$ 49,90 para a licença Full Vitalícia do Finanças Pro.\n\nNome: ${ownerName || 'Nome do Comprador'}\nID do Dispositivo: ${license.deviceId}\n\nEm anexo envio o comprovante do Pix. Por favor, envie minha chave de ativação.\n\nObrigado!`
+    );
+    window.open(`mailto:${PIX_CONFIG.supportEmail}?subject=${subject}&body=${body}`, '_blank');
   };
 
   const handleCopyPixKey = () => {
@@ -237,11 +204,6 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 stroke-[2.5]" />
               <div>
                 <p className="text-xs font-bold text-emerald-300">{successMessage}</p>
-                {pixGeneratedKey && (
-                  <p className="text-[11px] text-emerald-400/90 font-mono mt-0.5">
-                    Sua Chave: {pixGeneratedKey}
-                  </p>
-                )}
               </div>
             </div>
           )}
@@ -480,43 +442,42 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Buyer Name / Identification for the License */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-300">
-                      Nome / Identificação para a Licença:
-                    </label>
-                    <input
-                      type="text"
-                      value={ownerName}
-                      onChange={(e) => setOwnerName(e.target.value)}
-                      placeholder="Ex: Seu Nome ou Empresa"
-                      className="w-full bg-[#080B12] border border-slate-800 focus:border-emerald-500/50 rounded-xl px-4 py-2 text-white text-xs outline-none transition-all"
-                    />
+                  {/* Step by step Instructions for Pix */}
+                  <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
+                    <h5 className="font-bold text-slate-200 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-amber-400" />
+                      Como funciona a ativação após o Pix:
+                    </h5>
+                    <ol className="list-decimal list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
+                      <li>Faça o Pix de <strong className="text-emerald-400">R$ {PIX_CONFIG.price.toFixed(2).replace('.', ',')}</strong> usando o QR Code ou Chave acima.</li>
+                      <li>Envie o comprovante e seu <strong className="text-white font-mono">ID: {license.deviceId}</strong> para <strong className="text-amber-300">{PIX_CONFIG.supportEmail}</strong>.</li>
+                      <li>Você receberá sua <strong className="text-emerald-400">Chave de Ativação Oficial</strong> para desbloquear a versão Full permanente.</li>
+                    </ol>
                   </div>
 
-                  {/* Immediate Activation Confirmation Button */}
-                  <div className="pt-2">
+                  {/* Actions: Send Proof & Go to Insert Key */}
+                  <div className="pt-2 space-y-2">
                     <button
                       type="button"
-                      id="btn_confirm_pix_payment"
-                      disabled={isVerifyingPix}
-                      onClick={handleSimulatePixConfirmation}
-                      className="w-full py-3 rounded-xl text-xs font-extrabold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300 hover:from-emerald-300 hover:to-teal-300 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                      id="btn_go_to_key_tab"
+                      onClick={() => setActiveTab('key')}
+                      className="w-full py-3 rounded-xl text-xs font-extrabold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300 hover:from-emerald-300 hover:to-teal-300 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                     >
-                      {isVerifyingPix ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Confirmando Pix e Gerando Licença...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-4 h-4 stroke-[2.5]" />
-                          <span>Já Fiz o Pix • Liberar Minha Licença Full</span>
-                        </>
-                      )}
+                      <KeyRound className="w-4 h-4 stroke-[2.5]" />
+                      <span>Já Tenho Minha Chave de Ativação → Inserir Chave</span>
                     </button>
-                    <p className="text-[10px] text-slate-400 text-center mt-2">
-                      Após o pagamento, o app ativa sua licença vitalícia e salva seu código no dispositivo.
+
+                    <button
+                      type="button"
+                      onClick={handleSendProofEmail}
+                      className="w-full py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Enviar Comprovante por E-mail (com ID do Dispositivo)</span>
+                    </button>
+
+                    <p className="text-[10px] text-slate-400 text-center pt-1">
+                      A ativação é concluída mediante a inserção da chave oficial fornecida após a confirmação do pagamento.
                     </p>
                   </div>
                 </div>
@@ -593,29 +554,13 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
                     />
                   </div>
 
-                  {/* Quick Demo Key Helper */}
-                  <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between">
-                    <div className="text-[11px] text-slate-400">
-                      <span className="font-semibold text-slate-300 block">Deseja testar a ativação?</span>
-                      Gere um código de teste válido automaticamente.
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleFillDemoKey}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold transition-colors flex items-center gap-1"
-                    >
-                      <Zap className="w-3 h-3" />
-                      Código Demo
-                    </button>
-                  </div>
-
                   {/* Instructions */}
                   {showKeyHelp && (
                     <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 space-y-1.5 animate-fadeIn">
                       <p className="font-bold text-amber-300">Formatos Aceitos:</p>
                       <ul className="list-disc list-inside space-y-1 text-slate-400 text-[11px]">
-                        <li>Padrão: <code className="text-white font-mono">FINPRO-XXXX-XXXX-XXXX</code></li>
-                        <li>Chaves VIP Mestres: <code className="text-white font-mono">FINPRO-FULL-2026-VIP</code> ou <code className="text-white font-mono">PRO-VITALICIO-8899</code></li>
+                        <li>Chave Oficial Pix: <code className="text-white font-mono">FINPRO-XXXX-XXXX-XXXX</code></li>
+                        <li>Chave VIP Mestra: <code className="text-white font-mono">FINPRO-FULL-2026-VIP</code> ou <code className="text-white font-mono">PRO-VITALICIO-8899</code></li>
                       </ul>
                     </div>
                   )}
