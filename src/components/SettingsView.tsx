@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { AppSettings, Category } from '../types';
+import { AppLicense, AppSettings, Category } from '../types';
 import { downloadFile } from '../lib/financialUtils';
+import { maskLicenseKey, PIX_CONFIG } from '../lib/licenseUtils';
 import { DynamicIcon } from './DynamicIcon';
 import { 
   Settings, 
@@ -16,14 +17,23 @@ import {
   Tags,
   DollarSign,
   Eye,
-  EyeOff
+  EyeOff,
+  Crown,
+  KeyRound,
+  Cpu,
+  Smartphone,
+  Zap,
+  Sparkles,
+  Tag
 } from 'lucide-react';
 
 interface SettingsViewProps {
   settings: AppSettings;
+  license: AppLicense;
   categories: Category[];
   allAppData: any;
   onUpdateSettings: (newSettings: Partial<AppSettings>) => void;
+  onOpenRegisterModal: () => void;
   onSaveCategory: (category: Omit<Category, 'id'>, editingId?: string) => void;
   onDeleteCategory: (id: string) => void;
   onImportBackup: (importedData: any) => void;
@@ -32,9 +42,11 @@ interface SettingsViewProps {
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   settings,
+  license,
   categories,
   allAppData,
   onUpdateSettings,
+  onOpenRegisterModal,
   onSaveCategory,
   onDeleteCategory,
   onImportBackup,
@@ -125,7 +137,100 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     <div className="space-y-6 pb-12 animate-fadeIn max-w-4xl">
       <div>
         <h2 className="text-xl font-extrabold text-white tracking-tight">Configurações & Backup</h2>
-        <p className="text-xs text-slate-400">Personalize suas preferências, gerencie categorias e controle seus dados locais</p>
+        <p className="text-xs text-slate-400">Personalize suas preferências, gerencie categorias, controle seus dados locais e sua licença</p>
+      </div>
+
+      {/* App License & Registration Section */}
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0F1524] via-[#0D1220] to-[#0A0E18] border border-slate-800/80 shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center border shadow-inner shrink-0 ${
+              license.isRegistered 
+                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' 
+                : 'bg-amber-500/15 border-amber-500/30 text-amber-400'
+            }`}>
+              <Crown className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-bold text-white">Licenciamento & Registro do App</h3>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  license.isRegistered
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                }`}>
+                  {license.isRegistered ? 'VERSÃO FULL ATIVA' : 'VERSÃO GRATUITA'}
+                </span>
+                {!license.isRegistered && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    ⚡ R$ {PIX_CONFIG.price.toFixed(2).replace('.', ',')} no Pix
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {license.isRegistered
+                  ? 'Licença vitalícia ativada. Lançamentos, contas, metas e IA sem limitações.'
+                  : 'Obtenha a Versão Full com liberação instantânea via Pix ou insira seu código de ativação.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {license.isRegistered ? (
+              <button
+                onClick={onOpenRegisterModal}
+                id="btn_settings_open_register"
+                className="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Gerenciar Licença</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={onOpenRegisterModal}
+                  id="btn_settings_open_pix"
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300 hover:from-emerald-300 hover:to-teal-300 text-slate-950 shadow-emerald-500/20 flex items-center gap-1.5"
+                >
+                  <Smartphone className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Pagar com Pix (R$ {PIX_CONFIG.price.toFixed(2).replace('.', ',')})</span>
+                </button>
+
+                <button
+                  onClick={onOpenRegisterModal}
+                  id="btn_settings_open_register"
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Inserir Chave</span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          <div className="p-3.5 rounded-xl bg-[#080B12]/90 border border-slate-800/80">
+            <span className="text-[10px] text-slate-400 block mb-1">Status do Plano</span>
+            <span className={`text-xs font-bold ${license.isRegistered ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {license.isRegistered ? 'Vitalício • Full Access' : 'Gratuito (Trial)'}
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[#080B12]/90 border border-slate-800/80">
+            <span className="text-[10px] text-slate-400 block mb-1">ID do Dispositivo</span>
+            <span className="text-xs font-mono font-semibold text-slate-200 truncate block">
+              {license.deviceId}
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[#080B12]/90 border border-slate-800/80">
+            <span className="text-[10px] text-slate-400 block mb-1">Chave Registrada</span>
+            <span className="text-xs font-mono font-semibold text-slate-300 truncate block">
+              {license.isRegistered ? maskLicenseKey(license.licenseKey) : 'Não registrada'}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* User Preferences Form */}
@@ -151,7 +256,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <label className="block text-xs font-medium text-slate-300 mb-1.5">Moeda Padrão</label>
               <select
                 value={settings.currency}
-                onChange={(e) => onUpdateSettings({ currency: e.target.value })}
+                onChange={(e) => onUpdateSettings({ currency: e.target.value as any })}
                 className="w-full bg-[#080B12] border border-slate-800 rounded-xl px-3 py-2 text-white text-xs outline-none"
               >
                 <option value="BRL">Real Brasileiro (R$ - BRL)</option>
@@ -351,3 +456,4 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     </div>
   );
 };
+

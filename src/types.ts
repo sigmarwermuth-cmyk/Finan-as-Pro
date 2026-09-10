@@ -154,6 +154,17 @@ export interface AIAdvisorReport {
   generatedAt?: string;
 }
 
+export interface AppLicense {
+  isRegistered: boolean;
+  plan: 'free' | 'full';
+  licenseKey: string;
+  registeredTo: string;
+  registeredAt: string | null;
+  deviceId: string;
+  type: 'lifetime' | 'annual' | 'trial';
+  expiresAt?: string | null;
+}
+
 export interface AppSettings {
   currency: 'BRL' | 'USD' | 'EUR';
   hideValues: boolean;

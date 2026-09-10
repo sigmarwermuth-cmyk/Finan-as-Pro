@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActiveTab, AppSettings } from '../types';
+import { ActiveTab, AppLicense, AppSettings } from '../types';
 import { getMonthNamePT } from '../lib/financialUtils';
 import { 
   ChevronLeft, 
@@ -10,17 +10,20 @@ import {
   Sparkles, 
   Menu, 
   Calendar,
-  Bell
+  Crown,
+  ShieldCheck
 } from 'lucide-react';
 
 interface HeaderProps {
   currentMonthKey: string;
   onMonthChange: (newMonthKey: string) => void;
   settings: AppSettings;
+  license: AppLicense;
   onToggleHideValues: () => void;
   onOpenNewTransaction: () => void;
   onOpenAISmartAdd: () => void;
   onToggleMobileSidebar: () => void;
+  onOpenRegisterModal: () => void;
   activeTab: ActiveTab;
 }
 
@@ -28,10 +31,12 @@ export const Header: React.FC<HeaderProps> = ({
   currentMonthKey,
   onMonthChange,
   settings,
+  license,
   onToggleHideValues,
   onOpenNewTransaction,
   onOpenAISmartAdd,
   onToggleMobileSidebar,
+  onOpenRegisterModal,
   activeTab,
 }) => {
   const handlePrevMonth = () => {
@@ -98,8 +103,34 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Quick Action Buttons & Privacy Mode */}
+      {/* Right: Quick Action Buttons & License / Privacy Mode */}
       <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* App Registration / License Status Button */}
+        <button
+          onClick={onOpenRegisterModal}
+          id="btn_header_register_app"
+          className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
+            license.isRegistered
+              ? 'bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
+              : 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300 shadow-sm shadow-amber-500/10 animate-pulse'
+          }`}
+          title={license.isRegistered ? 'Licença FULL Ativa' : 'Clique para registrar e ativar a Versão Full com seu código'}
+        >
+          {license.isRegistered ? (
+            <>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Versão FULL</span>
+              <span className="sm:hidden">FULL</span>
+            </>
+          ) : (
+            <>
+              <Crown className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Registrar App (Full)</span>
+              <span className="sm:hidden">Registrar</span>
+            </>
+          )}
+        </button>
+
         {/* Hide values toggle */}
         <button
           onClick={onToggleHideValues}
@@ -113,12 +144,12 @@ export const Header: React.FC<HeaderProps> = ({
           {settings.hideValues ? (
             <>
               <EyeOff className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Valores Ocultos</span>
+              <span className="hidden md:inline">Valores Ocultos</span>
             </>
           ) : (
             <>
               <Eye className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">Privacidade</span>
+              <span className="hidden md:inline">Privacidade</span>
             </>
           )}
         </button>
@@ -145,3 +176,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

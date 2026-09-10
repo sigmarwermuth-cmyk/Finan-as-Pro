@@ -97,18 +97,21 @@ export const AIAdvisorView: React.FC<AIAdvisorViewProps> = ({
     };
 
     try {
-      const res = await fetch('/api/gemini/financial-advice', {
+      const res = await fetch('/api/gemini/advisor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ financialData: snapshot }),
       });
 
-      if (!res.ok) throw new Error('Erro ao gerar relatório com IA');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || 'Erro ao gerar relatório com IA');
+      }
       const data = await res.json();
       setAiReport(data);
     } catch (err: any) {
-      console.error(err);
-      // Fallback local insightful analysis if offline or backend key not yet populated
+      console.warn('AI advisor notice:', err?.message);
+      // Fallback local insightful analysis
       setAiReport({
         healthScore: calculatedScore,
         summary: `Sua taxa de economia no momento é de ${monthSummary.savingsRate.toFixed(1)}%. O maior volume de gastos está concentrado em ${categoryExpenses.categories[0]?.category || 'despesas gerais'}.`,
@@ -118,7 +121,7 @@ export const AIAdvisorView: React.FC<AIAdvisorViewProps> = ({
           'Metas financeiras configuradas com acompanhamento de progresso.',
         ],
         warnings: [
-          categoryExpenses.categories[0]?.percentage > 40
+          (categoryExpenses.categories[0]?.percentage || 0) > 40
             ? `A categoria ${categoryExpenses.categories[0]?.category} representa ${categoryExpenses.categories[0]?.percentage.toFixed(0)}% de todos os seus gastos.`
             : 'Mantenha vigilância nos gastos com delivery e assinaturas não utilizadas.',
         ],

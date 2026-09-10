@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Account, 
   ActiveTab, 
+  AppLicense,
   AppSettings, 
   Category, 
   FinancialGoal, 
@@ -18,6 +19,7 @@ import {
   initialTransactions 
 } from './data/initialData';
 import { calculateSummary } from './lib/financialUtils';
+import { FREE_LIMITS, getInitialLicense } from './lib/licenseUtils';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
@@ -30,6 +32,7 @@ import { AIAdvisorView } from './components/AIAdvisorView';
 import { SettingsView } from './components/SettingsView';
 import { TransactionModal } from './components/TransactionModal';
 import { AISmartAddModal } from './components/AISmartAddModal';
+import { RegisterAppModal } from './components/RegisterAppModal';
 
 const STORAGE_KEY = 'financas_pro_app_state_v1';
 
@@ -65,6 +68,12 @@ export default function App() {
     return saved ? JSON.parse(saved) : initialSettings;
   });
 
+  // App License State
+  const [license, setLicense] = useState<AppLicense>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_license`);
+    return saved ? JSON.parse(saved) : getInitialLicense();
+  });
+
   // UI state
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -80,6 +89,10 @@ export default function App() {
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [defaultTxType, setDefaultTxType] = useState<TransactionType>('expense');
   const [isAISmartAddOpen, setIsAISmartAddOpen] = useState(false);
+  
+  // Registration Modal state
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [registerTriggerReason, setRegisterTriggerReason] = useState<string | undefined>(undefined);
 
   // Sync to local storage
   useEffect(() => {
@@ -106,8 +119,42 @@ export default function App() {
     localStorage.setItem(`${STORAGE_KEY}_settings`, JSON.stringify(settings));
   }, [settings]);
 
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_license`, JSON.stringify(license));
+  }, [license]);
+
   // Overall calculations
   const monthSummary = calculateSummary(transactions, currentMonthKey);
+
+  // License Handlers
+  const handleRegisterSuccess = (key: string, ownerName: string) => {
+    setLicense((prev) => ({
+      ...prev,
+      isRegistered: true,
+      plan: 'full',
+      licenseKey: key,
+      registeredTo: ownerName,
+      registeredAt: new Date().toISOString(),
+      type: 'lifetime',
+    }));
+  };
+
+  const handleUnregisterLicense = () => {
+    setLicense((prev) => ({
+      ...prev,
+      isRegistered: false,
+      plan: 'free',
+      licenseKey: '',
+      registeredTo: '',
+      registeredAt: null,
+      type: 'lifetime',
+    }));
+  };
+
+  const openRegisterWithReason = (reason: string) => {
+    setRegisterTriggerReason(reason);
+    setIsRegisterModalOpen(true);
+  };
 
   // Handlers for Transactions
   const handleSaveTransaction = (txData: Omit<Transaction, 'id' | 'createdAt'>, editingId?: string) => {
@@ -120,6 +167,13 @@ export default function App() {
         )
       );
     } else {
+      // Check Free Limits
+      if (!license.isRegistered && transactions.length >= FREE_LIMITS.maxTransactions) {
+        setIsTxModalOpen(false);
+        openRegisterWithReason(`Você atingiu o limite de ${FREE_LIMITS.maxTransactions} lançamentos da versão gratuita. Registre a Versão Full com seu código para lançamentos ilimitados!`);
+        return;
+      }
+
       const newTx: Transaction = {
         ...txData,
         id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
@@ -134,6 +188,10 @@ export default function App() {
   };
 
   const handleOpenNewTransaction = (type: TransactionType = 'expense') => {
+    if (!license.isRegistered && transactions.length >= FREE_LIMITS.maxTransactions) {
+      openRegisterWithReason(`Você atingiu o limite de ${FREE_LIMITS.maxTransactions} lançamentos da versão gratuita. Registre o código da Versão Full para desbloquear lançamentos ilimitados.`);
+      return;
+    }
     setEditingTx(null);
     setDefaultTxType(type);
     setIsTxModalOpen(true);
@@ -147,6 +205,11 @@ export default function App() {
 
   // AISmartAdd handler: saves multiple structured items from receipt
   const handleAISmartAddSave = (parsedItems: any[]) => {
+    if (!license.isRegistered && transactions.length + parsedItems.length > FREE_LIMITS.maxTransactions) {
+      openRegisterWithReason(`A importação inteligente via IA requer a Versão Full para adicionar ${parsedItems.length} novos lançamentos.`);
+      return;
+    }
+
     const newItems: Transaction[] = parsedItems.map((item, idx) => ({
       id: `ai_tx_${Date.now()}_${idx}`,
       description: item.description,
@@ -172,6 +235,10 @@ export default function App() {
         prev.map((g) => (g.id === editingId ? { ...g, ...goalData } : g))
       );
     } else {
+      if (!license.isRegistered && goals.length >= FREE_LIMITS.maxGoals) {
+        openRegisterWithReason(`Você atingiu o limite de ${FREE_LIMITS.maxGoals} metas da versão gratuita. Registre a Versão Full para criar cofrinhos e metas ilimitadas!`);
+        return;
+      }
       const newGoal: FinancialGoal = {
         ...goalData,
         id: `goal_${Date.now()}`,
@@ -234,6 +301,10 @@ export default function App() {
         prev.map((a) => (a.id === editingId ? { ...a, ...accData } : a))
       );
     } else {
+      if (!license.isRegistered && accounts.length >= FREE_LIMITS.maxAccounts) {
+        openRegisterWithReason(`Você atingiu o limite de ${FREE_LIMITS.maxAccounts} contas bancárias da versão gratuita. Registre a Versão Full para gerenciar contas ilimitadas!`);
+        return;
+      }
       const newAcc: Account = {
         ...accData,
         id: `acc_${Date.now()}`,
@@ -345,6 +416,7 @@ export default function App() {
     goals,
     recurringBills,
     settings,
+    license,
   };
 
   return (
@@ -358,6 +430,12 @@ export default function App() {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           netBalance={monthSummary.netBalance}
           settings={settings}
+          license={license}
+          onOpenRegisterModal={() => {
+            setRegisterTriggerReason(undefined);
+            setIsRegisterModalOpen(true);
+          }}
+          transactionCount={transactions.length}
         />
 
         {/* Main Content Area */}
@@ -368,12 +446,23 @@ export default function App() {
             currentMonthKey={currentMonthKey}
             onMonthChange={setCurrentMonthKey}
             settings={settings}
+            license={license}
             onToggleHideValues={() =>
               setSettings((prev) => ({ ...prev, hideValues: !prev.hideValues }))
             }
             onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
             onOpenNewTransaction={() => handleOpenNewTransaction('expense')}
-            onOpenAISmartAdd={() => setIsAISmartAddOpen(true)}
+            onOpenAISmartAdd={() => {
+              if (!license.isRegistered && transactions.length >= FREE_LIMITS.maxTransactions) {
+                openRegisterWithReason('O recurso de Scanner e Lançamento Inteligente por IA é ilimitado na Versão Full.');
+                return;
+              }
+              setIsAISmartAddOpen(true);
+            }}
+            onOpenRegisterModal={() => {
+              setRegisterTriggerReason(undefined);
+              setIsRegisterModalOpen(true);
+            }}
           />
 
           {/* Main Body View */}
@@ -469,9 +558,14 @@ export default function App() {
             {activeTab === 'settings' && (
               <SettingsView
                 settings={settings}
+                license={license}
                 categories={categories}
                 allAppData={fullAppData}
                 onUpdateSettings={(newS) => setSettings((prev) => ({ ...prev, ...newS }))}
+                onOpenRegisterModal={() => {
+                  setRegisterTriggerReason(undefined);
+                  setIsRegisterModalOpen(true);
+                }}
                 onSaveCategory={handleSaveCategory}
                 onDeleteCategory={handleDeleteCategory}
                 onImportBackup={handleImportBackup}
@@ -500,6 +594,21 @@ export default function App() {
         onSaveTransactions={handleAISmartAddSave}
         categories={categories}
         accounts={accounts}
+      />
+
+      {/* App License / Registration Modal */}
+      <RegisterAppModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        license={license}
+        onRegisterSuccess={handleRegisterSuccess}
+        onUnregister={handleUnregisterLicense}
+        triggerReason={registerTriggerReason}
+        stats={{
+          transactionsCount: transactions.length,
+          accountsCount: accounts.length,
+          goalsCount: goals.length,
+        }}
       />
     </div>
   );
