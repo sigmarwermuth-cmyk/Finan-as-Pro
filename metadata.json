@@ -1,0 +1,6 @@
+{
+  "name": "Controle Financeiro Pessoal",
+  "description": "Aplicativo completo de gestão financeira pessoal com controle de receitas, despesas, cartões de crédito, orçamentos, metas, fluxo de caixa e consultor financeiro inteligente com IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
