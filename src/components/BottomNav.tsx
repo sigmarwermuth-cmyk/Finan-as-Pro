@@ -84,8 +84,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
         {/* Tab 5: Menu completo (Gaveta) */}
         <button
-          onClick={onOpenMobileMenu}
-          className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenMobileMenu();
+          }}
+          className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
         >
           <Menu className="w-5 h-5 mb-0.5 text-slate-400" />
           <span className="text-[10px] tracking-tight">Menu</span>

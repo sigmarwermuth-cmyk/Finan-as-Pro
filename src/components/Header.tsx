@@ -67,8 +67,11 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Left: Mobile Menu & Month Selector */}
       <div className="flex items-center gap-2 sm:gap-3">
         <button
-          onClick={onToggleMobileSidebar}
-          className="lg:hidden p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800/60 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleMobileSidebar();
+          }}
+          className="lg:hidden p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800/60 transition-colors cursor-pointer"
           aria-label="Abrir menu"
         >
           <Menu className="w-5 h-5" />
