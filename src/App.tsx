@@ -459,7 +459,7 @@ export default function App() {
             onToggleHideValues={() =>
               setSettings((prev) => ({ ...prev, hideValues: !prev.hideValues }))
             }
-            onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+            onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
             onOpenNewTransaction={() => handleOpenNewTransaction('expense')}
             onOpenAISmartAdd={() => {
               if (!license.isRegistered && transactions.length >= FREE_LIMITS.maxTransactions) {
