@@ -63,9 +63,9 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0B0F19]/85 backdrop-blur-xl border-b border-slate-800/80 px-4 lg:px-8 py-3 flex items-center justify-between transition-all">
+    <header className="sticky top-0 z-30 bg-[#0B0F19]/90 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between transition-all">
       {/* Left: Mobile Menu & Month Selector */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={onToggleMobileSidebar}
           className="lg:hidden p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800/60 transition-colors"
@@ -75,10 +75,10 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Month Picker Controls */}
-        <div className="flex items-center bg-slate-900/90 border border-slate-800/90 rounded-xl p-1 shadow-sm">
+        <div className="flex items-center bg-slate-900/90 border border-slate-800/90 rounded-xl p-0.5 sm:p-1 shadow-sm">
           <button
             onClick={handlePrevMonth}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
+            className="p-1 sm:p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
             title="Mês anterior"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -86,16 +86,16 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={handleCurrentMonth}
-            className="px-3 py-1 text-xs font-semibold text-slate-200 hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+            className="px-2 sm:px-3 py-1 text-xs font-semibold text-slate-200 hover:text-emerald-400 transition-colors flex items-center gap-1 sm:gap-1.5"
             title="Voltar para o mês atual"
           >
-            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="capitalize">{getMonthNamePT(currentMonthKey)}</span>
+            <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="capitalize truncate max-w-[100px] sm:max-w-none">{getMonthNamePT(currentMonthKey)}</span>
           </button>
 
           <button
             onClick={handleNextMonth}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
+            className="p-1 sm:p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
             title="Próximo mês"
           >
             <ChevronRight className="w-4 h-4" />
@@ -104,12 +104,12 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right: Quick Action Buttons & License / Privacy Mode */}
-      <div className="flex items-center gap-2 sm:gap-2.5">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
         {/* App Registration / License Status Button */}
         <button
           onClick={onOpenRegisterModal}
           id="btn_header_register_app"
-          className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
+          className={`px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
             license.isRegistered
               ? 'bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
               : 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300 shadow-sm shadow-amber-500/10 animate-pulse'
@@ -120,13 +120,13 @@ export const Header: React.FC<HeaderProps> = ({
             <>
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span className="hidden sm:inline">Versão FULL</span>
-              <span className="sm:hidden">FULL</span>
+              <span className="sm:hidden text-[11px]">FULL</span>
             </>
           ) : (
             <>
               <Crown className="w-3.5 h-3.5 text-amber-400" />
               <span className="hidden sm:inline">Registrar App (Full)</span>
-              <span className="sm:hidden">Registrar</span>
+              <span className="sm:hidden text-[11px]">Registrar</span>
             </>
           )}
         </button>
@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Hide values toggle */}
         <button
           onClick={onToggleHideValues}
-          className={`px-3 py-1.5 rounded-xl border transition-all text-xs font-medium flex items-center gap-1.5 ${
+          className={`p-2 sm:px-3 sm:py-1.5 rounded-xl border transition-all text-xs font-medium flex items-center gap-1.5 ${
             settings.hideValues
               ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
               : 'bg-slate-900/80 border-slate-800/80 text-slate-300 hover:text-white hover:border-slate-700'
@@ -157,17 +157,17 @@ export const Header: React.FC<HeaderProps> = ({
         {/* AI Smart Add Button */}
         <button
           onClick={onOpenAISmartAdd}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 shadow-sm transition-all flex items-center gap-1.5"
+          className="hidden sm:flex px-3.5 py-1.5 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 shadow-sm transition-all items-center gap-1.5"
         >
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
           <span className="hidden md:inline">Lançar com IA</span>
         </button>
 
-        {/* New Transaction Button */}
+        {/* New Transaction Button (Hidden on extra small mobile since FAB is available) */}
         <button
           onClick={onOpenNewTransaction}
           id="btn_header_new_transaction"
-          className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5"
+          className="hidden sm:flex px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-md shadow-emerald-500/20 transition-all items-center gap-1.5"
         >
           <Plus className="w-4 h-4 text-slate-950 stroke-[2.5]" />
           <span>Nova Transação</span>

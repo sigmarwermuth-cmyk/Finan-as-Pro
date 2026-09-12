@@ -302,8 +302,8 @@ export const AccountsView: React.FC<AccountsViewProps> = ({
 
       {/* Account / Card Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#0F1524] border border-slate-800/90 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#0F1524] border-t sm:border border-slate-800/90 rounded-t-3xl sm:rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
               <h3 className="text-sm font-bold text-white">
                 {editingAccount ? 'Editar Conta/Cartão' : 'Nova Conta Bancária ou Cartão'}

@@ -152,14 +152,14 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
   return (
     <div 
       id="register_app_modal_overlay" 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
     >
       <div 
         id="register_app_modal_container" 
-        className="bg-[#0F1524] border border-slate-800/90 rounded-2xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+        className="bg-[#0F1524] border-t sm:border border-slate-800/90 rounded-t-3xl sm:rounded-2xl w-full max-w-xl max-h-[92vh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800/80 bg-[#080B12]/90">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800/80 bg-[#080B12]/90">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-inner">
               <Crown className="w-5 h-5 text-amber-400" />

@@ -135,13 +135,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const filteredCategories = categories.filter(c => c.type === (type === 'transfer' ? 'expense' : type));
 
   return (
-    <div id="transaction_modal_overlay" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+    <div id="transaction_modal_overlay" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <div 
         id="transaction_modal_container" 
-        className="bg-[#0F1524] border border-slate-800/90 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+        className="bg-[#0F1524] border-t sm:border border-slate-800/90 rounded-t-3xl sm:rounded-2xl w-full max-w-xl max-h-[92vh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800/80 bg-[#080B12]/80">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800/80 bg-[#080B12]/80">
           <div className="flex items-center gap-3">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
               type === 'income' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
@@ -157,21 +157,21 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 {editingTransaction ? 'Editar Transação' : 'Nova Transação'}
               </h2>
               <p className="text-xs text-slate-400">
-                {editingTransaction ? 'Atualize as informações do lançamento' : 'Cadastre uma receita, despesa ou transferência'}
+                {editingTransaction ? 'Atualize as informações do lançamento' : 'Cadastre receita, despesa ou transferência'}
               </p>
             </div>
           </div>
           <button
             id="close_transaction_modal_btn"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 transition-colors"
+            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
           {/* Type Selector Tabs */}
           <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#080B12] rounded-xl border border-slate-800/80">
             <button

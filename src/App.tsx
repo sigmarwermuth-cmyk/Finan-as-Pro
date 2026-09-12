@@ -33,6 +33,7 @@ import { SettingsView } from './components/SettingsView';
 import { TransactionModal } from './components/TransactionModal';
 import { AISmartAddModal } from './components/AISmartAddModal';
 import { RegisterAppModal } from './components/RegisterAppModal';
+import { BottomNav } from './components/BottomNav';
 
 const STORAGE_KEY = 'financas_pro_app_state_v2';
 
@@ -474,7 +475,7 @@ export default function App() {
           />
 
           {/* Main Body View */}
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
+          <main className="flex-1 px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
             {activeTab === 'dashboard' && (
               <DashboardView
                 transactions={transactions}
@@ -618,6 +619,19 @@ export default function App() {
           accountsCount: accounts.length,
           goalsCount: goals.length,
         }}
+      />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenNewTransaction={() => handleOpenNewTransaction('expense')}
+        onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+        onOpenRegisterModal={() => {
+          setRegisterTriggerReason(undefined);
+          setIsRegisterModalOpen(true);
+        }}
+        license={license}
       />
     </div>
   );
