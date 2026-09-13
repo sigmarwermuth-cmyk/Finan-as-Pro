@@ -1,0 +1,8 @@
+{
+	"appId": "com.financaspro.app",
+	"appName": "FinançaPro",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}
