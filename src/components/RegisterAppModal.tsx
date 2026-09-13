@@ -4,7 +4,6 @@ import {
   validateLicenseKey, 
   maskLicenseKey,
   generatePixCopiaECola,
-  generateKeyForDeviceId,
   PIX_CONFIG,
   FREE_LIMITS
 } from '../lib/licenseUtils';
@@ -552,23 +551,6 @@ export const RegisterAppModal: React.FC<RegisterAppModalProps> = ({
                       placeholder="Ex: FINPRO-XXXX-XXXX-XXXX"
                       className="w-full bg-[#080B12] border border-slate-800 focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/30 rounded-xl px-4 py-2.5 text-white font-mono font-bold text-sm placeholder-slate-600 outline-none uppercase tracking-wider transition-all"
                     />
-
-                    {/* Device-bound key generator shortcut for testing/demonstration */}
-                    <div className="pt-1 flex items-center justify-between text-[11px]">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const validKey = generateKeyForDeviceId(license.deviceId);
-                          setInputKey(validKey);
-                          setErrorMessage(null);
-                        }}
-                        className="font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors hover:underline"
-                        title="Preencher a chave única correspondente a este ID"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Preencher Chave Vinculada a este Dispositivo (Teste)</span>
-                      </button>
-                    </div>
 
                     {errorMessage && (
                       <p className="text-xs text-rose-400 font-medium flex items-center gap-1 mt-1">

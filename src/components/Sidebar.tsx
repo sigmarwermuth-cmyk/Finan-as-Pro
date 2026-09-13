@@ -245,15 +245,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Mobile Drawer via Portal attached to document.body (Bypasses any overflow/clipping constraints) */}
       {isOpenMobile && createPortal(
-        <div className="fixed inset-0 z-[9999] lg:hidden flex">
+        <div className="fixed inset-0 z-[9999] lg:hidden flex items-stretch w-full h-full h-[100dvh] overflow-hidden">
           {/* Backdrop */}
           <div
-            onClick={onCloseMobile}
-            className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fadeIn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCloseMobile();
+            }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fadeIn cursor-pointer"
           />
 
           {/* Slide-over Drawer */}
-          <aside className="relative z-10 w-80 max-w-[85vw] h-full bg-[#0C101B] border-r border-slate-800/80 flex flex-col shadow-2xl animate-slideInLeft overflow-hidden">
+          <aside 
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 w-80 max-w-[85vw] h-full min-h-full bg-[#0C101B] border-r border-slate-800/80 flex flex-col shadow-2xl animate-slideInLeft overflow-hidden"
+          >
             {renderContent(true)}
           </aside>
         </div>,
