@@ -7,16 +7,6 @@ export const FREE_LIMITS = {
   maxRecurringBills: 3,
 };
 
-// Recognized master keys for instant full lifetime registration
-export const MASTER_KEYS: string[] = [
-  'FINPRO-FULL-2026-VIP',
-  'PRO-VITALICIO-8899',
-  'FINPRO-PRO-FULL-ACCESS',
-  'VIP-FULL-ACCESS-2026',
-  'FIN-9988-FULL-2026',
-  'MASTER-KEY-FINPRO',
-];
-
 // Official PIX Payment Configuration for Full License
 export const PIX_CONFIG = {
   pixKey: 'b801a0d5-b949-4c8e-ad5d-b544afa5ab8b',
@@ -85,16 +75,7 @@ export function generatePixCopiaECola(
 }
 
 /**
- * Generates a verified full license key after PIX confirmation
- */
-export function generatePixLicenseKey(): string {
-  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const genBlock = () => Array.from({ length: 4 }, () => letters[Math.floor(Math.random() * letters.length)]).join('');
-  return `FINPRO-PIX1-${genBlock()}-${genBlock()}`;
-}
-
-/**
- * Gets or creates a persistent unique Machine/Device ID for this browser instance.
+ * Gets or creates a persistent unique Machine/Device ID for this browser/device instance.
  */
 export function getOrCreateDeviceId(): string {
   const DEVICE_KEY = 'financas_pro_device_id';
@@ -126,13 +107,53 @@ export function getInitialLicense(): AppLicense {
 }
 
 /**
- * Validates a license key.
- * Accepts recognized master keys, or keys formatted as FINPRO-XXXX-XXXX-XXXX / PRO-XXXX-XXXX-XXXX
- * that satisfy a mathematical checksum based on character codes.
+ * Helper hashing function to generate non-reversible hash blocks.
+ */
+function hashString(input: string, seed: number): number {
+  let h = seed >>> 0;
+  for (let i = 0; i < input.length; i++) {
+    h = Math.imul(h ^ input.charCodeAt(i), 0x5bd1e995);
+    h ^= h >>> 13;
+  }
+  return (h >>> 0);
+}
+
+/**
+ * Generates the unique, deterministic license key tied exclusively to a given Device ID.
+ * Formula: FINPRO-[BLOCK1]-[BLOCK2]-[BLOCK3]
+ */
+export function generateKeyForDeviceId(deviceId: string): string {
+  const cleanId = (deviceId || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!cleanId) return '';
+
+  const ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // 32 chars (omits 0, O, 1, I, L)
+  const SALT = 'FINPRO_DEVICE_LICENSE_SALT_2026_V1';
+
+  const h1 = hashString(`${cleanId}:${SALT}:B1`, 0x12345678);
+  const h2 = hashString(`${cleanId}:${SALT}:B2`, 0x87654321);
+  const h3 = hashString(`${cleanId}:${SALT}:B3`, 0xDEADBEEF);
+
+  const genBlock = (hashVal: number) => {
+    let block = '';
+    let curr = hashVal;
+    for (let i = 0; i < 4; i++) {
+      const idx = (curr >>> (i * 5)) % ALPHABET.length;
+      block += ALPHABET[idx];
+      curr = Math.imul(curr ^ (i + 1), 0x45d9f3b) >>> 0;
+    }
+    return block;
+  };
+
+  return `FINPRO-${genBlock(h1)}-${genBlock(h2)}-${genBlock(h3)}`;
+}
+
+/**
+ * Validates a license key strictly against the user's Device ID.
+ * Generic formatted keys or master keys are NOT accepted unless derived from this exact device.
  */
 export function validateLicenseKey(
   rawKey: string,
-  _deviceId: string
+  deviceId: string
 ): { isValid: boolean; message: string; type?: 'lifetime' | 'annual' } {
   const cleanKey = rawKey.trim().toUpperCase().replace(/\s+/g, '');
 
@@ -140,61 +161,28 @@ export function validateLicenseKey(
     return { isValid: false, message: 'Digite o código de ativação.' };
   }
 
-  // Check against master VIP keys
-  if (MASTER_KEYS.includes(cleanKey)) {
+  if (!deviceId) {
+    return { isValid: false, message: 'ID do dispositivo não identificado.' };
+  }
+
+  const expectedKey = generateKeyForDeviceId(deviceId);
+
+  if (cleanKey === expectedKey) {
     return {
       isValid: true,
-      message: 'Código VIP vitalício validado com sucesso!',
-      type: 'lifetime',
-    };
-  }
-
-  // Check standard format: (FINPRO|PRO|FULL)-[4 chars]-[4 chars]-[4 chars]
-  const pattern = /^(FINPRO|PRO|FULL)-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})$/;
-  const match = cleanKey.match(pattern);
-
-  if (!match) {
-    return {
-      isValid: false,
-      message: 'Formato inválido. O código deve seguir o padrão: FINPRO-XXXX-XXXX-XXXX ou uma Chave VIP.',
-    };
-  }
-
-  const [, prefix, block1, block2, block3] = match;
-
-  // Algorithmic validation: calculate checksum of blocks
-  let sum = 0;
-  const fullStr = `${prefix}${block1}${block2}${block3}`;
-  for (let i = 0; i < fullStr.length; i++) {
-    sum += fullStr.charCodeAt(i) * (i + 1);
-  }
-
-  // Any well-formed 4-block key with correct length and prefix is validated
-  if (fullStr.length >= 15) {
-    return {
-      isValid: true,
-      message: 'Licença Full Version ativada com sucesso!',
+      message: 'Licença vinculada a este dispositivo validada com sucesso!',
       type: 'lifetime',
     };
   }
 
   return {
     isValid: false,
-    message: 'Chave de licença inválida ou não reconhecida.',
+    message: `Chave inválida para este aparelho (${deviceId}). Chaves de outros dispositivos ou códigos genéricos não são aceitos.`,
   };
 }
 
 /**
- * Generates a valid sample key for quick demonstration or trial
- */
-export function generateSampleKey(): string {
-  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const genBlock = () => Array.from({ length: 4 }, () => letters[Math.floor(Math.random() * letters.length)]).join('');
-  return `FINPRO-${genBlock()}-${genBlock()}-${genBlock()}`;
-}
-
-/**
- * Masks a license key for safe display (e.g. FINPRO-****-****-8899)
+ * Masks a license key for safe display (e.g. FINPRO-••••-••••-8899)
  */
 export function maskLicenseKey(key: string): string {
   if (!key || key.length < 8) return '••••••••••••';
